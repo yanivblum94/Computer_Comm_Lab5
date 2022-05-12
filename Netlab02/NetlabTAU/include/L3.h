@@ -1,10 +1,7 @@
-/*
-* Author: Tom Mahler
-* Date: May 2015
-*/
 #ifndef L3_H_
 #define L3_H_
-#include "Types.h"
+#include "Types.h"	
+#include "L4.h"
 #include <string>
 
 class L2;
@@ -14,7 +11,7 @@ class L4;
 * \class L3
 * \brief Represents a Layer 3 interface (IP).
 */
-class L3{
+class L3 {
 public:
 
 	/**
@@ -22,7 +19,7 @@ public:
 	*
 	* May use it to initiate variables and data structure that you wish to use.
 	* Should remain empty by default (if no global class variables are beeing used).
-	* 
+	*
 	* \param debug \a (bool)
 	* \parblock
 	* Decide the mode of the interface, when true the interface will print messages for debuf purposes.
@@ -43,7 +40,7 @@ public:
 	* \param destIP \a (string) The destination IP address (from the main).
 	* \retval int the number of bytes that were sent (from sendToL2).
 	*/
-	int sendToL3(byte *sendData, size_t sendDataLen, std::string srcIP, std::string destIP);
+	int sendToL3(byte* sendData, size_t sendDataLen, std::string srcIP, std::string destIP);
 
 	/**
 	* \brief L3 input routine.
@@ -57,7 +54,7 @@ public:
 	* \param recvDataLen \a (size_t) The length of the received data.
 	* \retval int the number of bytes that were received.
 	*/
-	int recvFromL3(byte *recvData, size_t recvDataLen);
+	int recvFromL3(byte* recvData, size_t recvDataLen);
 
 	/**
 	* \brief Setter for the pointer to the L2 to be used by this layer.

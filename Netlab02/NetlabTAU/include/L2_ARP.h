@@ -1,7 +1,3 @@
-/*
-* Author: Tom Mahler
-* Date: May 2015
-*/
 #ifndef L2_ARP_H_
 #define L2_ARP_H_
 #include "L2.h"
@@ -12,7 +8,7 @@ class NIC;
 /**
 * \class L2_ARP
 * \brief Address Resolution Protocol.
-* 
+*
 * See RFC 826 for protocol description. ARP packets are variable
 * in size; the arp header defines the fixed-length portion.
 * Protocol type values are the same as those for 10 Mb/s Ethernet.
@@ -20,7 +16,7 @@ class NIC;
 * arp_tha and arp_tpa in that order, according to the lengths
 * specified. Field names used correspond to RFC 826.
 */
-class L2_ARP{
+class L2_ARP {
 public:
 
 	/**
@@ -33,7 +29,7 @@ public:
 	* \endparblock
 	*/
 	L2_ARP(bool debug);
-	
+
 	/**
 	* \brief ARP destructor.
 	*
@@ -49,6 +45,8 @@ public:
 	*/
 	void setNIC(NIC* nic);
 
+	NIC* getNIC();
+
 	/**
 	* \brief Broadcast an ARP request.
 	*
@@ -56,7 +54,7 @@ public:
 	*	- arp header source ip address
 	*	- arp header target ip address
 	*	- arp header source Ethernet address
-	* 
+	*
 	* \param ip_addr \a (string) Target ip address.
 	* \retval The number of bytes sent.
 	*/
@@ -65,15 +63,15 @@ public:
 	/**
 	* \brief Resolve an IP address into an Ethernet address.
 	*
-	* If there is no entry in the arp table, set one up and 
+	* If there is no entry in the arp table, set one up and
 	* broadcast a request for the IP address.
 	* Hold onto this data and resend it once the address
-	* is finally resolved. 
+	* is finally resolved.
 	* A return value of "" indicates that the packet has been
 	* taken over here, either now or for later transmission,
 	* else, returns the resolved destination MAC address which
 	* indicates the packet should be sent normally.
-	* 
+	*
 	* \param ip_addr \a (string) Target ip address.
 	* \param sendData \a (byte*) Data to hold onto if the address is not yet resolved.
 	* \param sendDataLen \a (size_t) Length of data to hold onto if the address is not yet resolved.
@@ -102,7 +100,7 @@ public:
 	* Algorithm is that given in RFC 826.
 	* Called by recvFromL2 when an ARP packet arrives.
 	* If the arriving packet is an ARP Reply, then the method should
-	* check if a packet is beeing held onto (as a result of an 
+	* check if a packet is beeing held onto (as a result of an
 	* unresolved prior arpresolve call), resolve the MAC address,
 	* send the held packet and free the held packet from the ARP entry.
 	* If the arriving packet is an ARP Request, then the method should
@@ -114,7 +112,7 @@ public:
 	* \param recvDataLen \a (size_t) The length of the data to be sent.
 	* \retval int the number of bytes that were received.
 	*/
-	int in_arpinput(byte *recvData, size_t recvDataLen);
+	int in_arpinput(byte* recvData, size_t recvDataLen);
 
 	/**
 	* \brief Send an ARP Reply.
@@ -132,10 +130,11 @@ public:
 	* \retval YOUR_RETURN_VALUE
 	*/
 	void* SendArpReply(std::string itaddr, std::string isaddr, std::string hw_tgt, std::string hw_snd);
+	void CreateNewTableEntry(std::string ip_addr, byte* send_data, size_t send_data_len);
 
 private:
 	bool debug;
-	NIC * nic;
+	NIC* nic;
 
 	/* ADD YOUR ARP TABLE AND ADDITIONAL VARIABLES HERE */
 };
