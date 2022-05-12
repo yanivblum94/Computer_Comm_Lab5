@@ -63,7 +63,7 @@ ArpTableEntry::~ArpTableEntry() {
 		delete (*data_iterator);
 	}
 }
-void PrintUsingMutex(string str, NIC* nic) {
+void PrintUsingMutexArp(string str, NIC* nic) {
 	pthread_mutex_lock(&(nic->print_mutex));
 	cout << str;
 	pthread_mutex_unlock(&(nic->print_mutex));
@@ -284,11 +284,11 @@ string ConvertMACToString(unsigned char* bytes) {
 
 int L2_ARP::in_arpinput(byte* recvData, size_t recvDataLen)
 {
-	PrintUsingMutex("ARP packet was received!\n", nic);
+	PrintUsingMutexArp("ARP packet was received!\n", nic);
 	// check if the packet is vaild
 	if (recvDataLen != ARP_DATA_SIZE)
 	{
-		PrintUsingMutex("ARP packet is corrupt. Dropping packet...!\n", nic);
+		PrintUsingMutexArp("ARP packet is corrupt. Dropping packet...!\n", nic);
 		return FAILURE_CODE;
 	}
 
@@ -323,14 +323,14 @@ int L2_ARP::in_arpinput(byte* recvData, size_t recvDataLen)
 	int res = 0;
 	if (protocol_type != ETHERNET_TYPE_IP || hardware_type != 1 || protocol_length != 4 || hardware_length != MAC_LENGTH)
 	{
-		PrintUsingMutex("ARP Protocol Or Hardware Type Not Supported, Dropping Packet...!\n", nic);
+		PrintUsingMutexArp("ARP Protocol Or Hardware Type Not Supported, Dropping Packet...!\n", nic);
 		return res;
 	}
 
 	// check operation
 	if (operation != 1 && operation != 2)
 	{
-		PrintUsingMutex("ARP Operation is not supported. Dropping Packet...!\n", nic);
+		PrintUsingMutexArp("ARP Operation is not supported. Dropping Packet...!\n", nic);
 		return res;
 	}
 
@@ -346,7 +346,7 @@ int L2_ARP::in_arpinput(byte* recvData, size_t recvDataLen)
 				data_iterator != entry->VectorOfWaiters->end();
 				data_iterator++)
 			{
-				PrintUsingMutex("Sending packet!\n", nic);
+				PrintUsingMutexArp("Sending packet!\n", nic);
 				res += this->nic->getUpperInterface()->sendToL2((*data_iterator)->send_data,
 					(*data_iterator)->send_data_len, AF_UNSPEC, entry->DestMAC, ETHERNET_TYPE_IP, entry->DestIp);
 				delete[](*data_iterator)->send_data;
@@ -357,7 +357,7 @@ int L2_ARP::in_arpinput(byte* recvData, size_t recvDataLen)
 			entry->LastUsedTime = time(0);
 		}
 		else {
-			PrintUsingMutex("Adding IP/MAC pair to ARP table.\n", nic);
+			PrintUsingMutexArp("Adding IP/MAC pair to ARP table.\n", nic);
 
 			if (sender_ip.compare(nic->myIP) != 0 && sender_ip.compare(IP_LOCALHOST) != 0)
 			{
@@ -377,7 +377,7 @@ int L2_ARP::in_arpinput(byte* recvData, size_t recvDataLen)
 		}
 		else
 		{
-			PrintUsingMutex("Target IP does not match host IP, Dropping packet...!\n", nic);
+			PrintUsingMutexArp("Target IP does not match host IP, Dropping packet...!\n", nic);
 			return FAILURE_CODE;
 		}
 	}
