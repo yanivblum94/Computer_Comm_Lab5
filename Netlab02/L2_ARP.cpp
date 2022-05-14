@@ -270,8 +270,7 @@ void* L2_ARP::arplookup(string ip_addr, bool create)
 	return NULL;
 }
 
-string ConvertIpToString(unsigned char* bytes) {
-	char buf[50];
+string ConvertIpToString(unsigned char* bytes, char buf[50]) {
 	sprintf(buf, "%d.%d.%d.%d", bytes[0], bytes[1], bytes[2], bytes[3]);
 	return string(buf);
 }
@@ -302,10 +301,11 @@ int L2_ARP::in_arpinput(byte* recvData, size_t recvDataLen)
 	//convert ip to string
 	string sender_ip;
 	string target_ip;
+	char buf[50];
 	unsigned char* bytes = recvData + ETHERNET_HEADER_SIZE;
-	sender_ip = ConvertIpToString(bytes);
+	sender_ip = ConvertIpToString(bytes, buf);
 	bytes = recvData + 24;
-	target_ip = ConvertIpToString(bytes);
+	target_ip = ConvertIpToString(bytes, buf);
 
 	string mac_sender;
 	string mac_target;
