@@ -1,7 +1,3 @@
-/*
-* Author: Tom Mahler
-* Date: May 2015
-*/
 #include <iostream>
 
 #include "L2.h"
