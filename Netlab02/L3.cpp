@@ -38,7 +38,7 @@ using namespace std;
 #define ICMP_PROTOCOL 1//1 byte
 #define IP_TOS 0
 #define IP_HEADER_SIZE 20 //20 bytes
-#define ETHERNET_HEADER_SIZE 14// 14 bytes
+#define ETHERNET_HEADER_LEN 14// 14 bytes
 #define IP_MAX_FRAME_SIZE 1500//MTU
 
 
