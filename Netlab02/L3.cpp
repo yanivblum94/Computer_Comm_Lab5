@@ -38,7 +38,7 @@ using namespace std;
 #define ICMP_PROTOCOL 1//1 byte
 #define IP_TOS 0
 #define IP_HEADER_SIZE 20 //20 bytes
-#define ETHERNET_HEADER_LEN 14// 14 bytes
+#define ETHERNET_HEADER_SIZE 14// 14 bytes
 #define IP_MAX_FRAME_SIZE 1500//MTU
 
 
@@ -62,11 +62,11 @@ public:
 	struct header_IP Header;
 	byte* DataLayer4;
 	size_t DataLayer4Len;
-	
+
 	//methods
 	//ctors and dtor
 	IP_packet::IP_packet(bool debug);
-	IP_packet(byte *sendData, size_t sendDataLen, std::string srcIP, std::string destIP, bool debug);
+	IP_packet(byte* sendData, size_t sendDataLen, std::string srcIP, std::string destIP, bool debug);
 	~IP_packet();
 
 	//regular methods
@@ -87,7 +87,7 @@ IP_packet::IP_packet(bool debug)
 	this->debug = debug;
 }
 
-IP_packet::IP_packet(byte *sendData, size_t sendDataLen, std::string srcIP, std::string destIP, bool debug)
+IP_packet::IP_packet(byte* sendData, size_t sendDataLen, std::string srcIP, std::string destIP, bool debug)
 {
 	//data
 	this->DataLayer4 = sendData;
@@ -111,6 +111,7 @@ IP_packet::IP_packet(byte *sendData, size_t sendDataLen, std::string srcIP, std:
 	this->Header.identifications = 0;
 
 	//calculated CRC
+	this->Header.header_checksum = 0;
 	this->Header.header_checksum = GetChecksum();
 }
 
@@ -153,9 +154,9 @@ uint16_t IP_packet::GetChecksum()
 		hdr += 2;
 	} while (header_len > 1);
 
-	if (header_len != 0) 
+	if (header_len != 0)
 		res += *hdr;
-	
+
 	while (res >> CHECK_SUM_SHIFT_RIGHT) {
 		res = (res >> CHECK_SUM_SHIFT_RIGHT) + (res & CHECK_SUM_MASK);
 	}
@@ -243,7 +244,7 @@ bool IP_packet::CheckBinaryPacket(byte* binary_data, int data_size) {
 }
 
 
-void IP_packet::PrintIPAddress(byte* adr){
+void IP_packet::PrintIPAddress(byte* adr) {
 	for (int i = 0; i < 4; i++)
 	{
 		DebugPrint((uint16_t)adr[i]);
@@ -282,26 +283,29 @@ void IP_packet::PrintPacket() {
 	DebugPrint(" , >\n");
 }
 
-/*	
-	L3 constructor, use it to initiate variables and data structure that you wish to use. 
-	Should remain empty by default (if no global class variables are beeing used).
+/*
+L3 constructor, use it to initiate variables and data structure that you wish to use.
+Should remain empty by default (if no global class variables are beeing used).
 */
 L3::L3(bool debug) { this->debug = debug; }
 
-/*	
-	sendToL3 is called by the upper layer via the upper layer's L3 pointer.
-	sendData is the pointer to the data L4 wish to send.
-	sendDataLen is the length of that data.
-	srcIP is the machines IP address that L4 supplied.
-	destIP is the destination IP address that L4 supplied.
-	debug is to enable print (use true)
+/*
+sendToL3 is called by the upper layer via the upper layer's L3 pointer.
+sendData is the pointer to the data L4 wish to send.
+sendDataLen is the length of that data.
+srcIP is the machines IP address that L4 supplied.
+destIP is the destination IP address that L4 supplied.
+debug is to enable print (use true)
 */
-int L3::sendToL3(byte *sendData, size_t sendDataLen, std::string srcIP, std::string destIP) {
+int L3::sendToL3(byte* sendData, size_t sendDataLen, std::string srcIP, std::string destIP) {
 	byte* buff = new byte[IP_MAX_FRAME_SIZE];
 	IP_packet* packet = new IP_packet(sendData, sendDataLen, srcIP, destIP, debug); //new packet
 	if (!packet->IsPacketValid()) { //if packet is invalid
 		delete packet;
 		return FAIL_CODE;
+	}
+	if (debug) {
+		packet->PrintPacket();
 	}
 	packet->SetIPHeader(buff);
 	memcpy(buff + IP_HEADER_SIZE, packet->DataLayer4, packet->DataLayer4Len);
@@ -312,21 +316,21 @@ int L3::sendToL3(byte *sendData, size_t sendDataLen, std::string srcIP, std::str
 }
 
 /*
-	recvFromL3 is called by the upper layer via the upper layer's L3 pointer.
-	recvData is the pointer to the data L4 wish to receive.
-	recvDataLen is the length of that data.
-	debug is to enable print (use true)
+recvFromL3 is called by the upper layer via the upper layer's L3 pointer.
+recvData is the pointer to the data L4 wish to receive.
+recvDataLen is the length of that data.
+debug is to enable print (use true)
 */
-int L3::recvFromL3(byte *recvData, size_t recvDataLen) {
-	byte *buff = new byte[recvDataLen - IP_HEADER_SIZE];
+int L3::recvFromL3(byte* recvData, size_t recvDataLen) {
+	byte* buff = new byte[recvDataLen - IP_HEADER_SIZE];
 	int res = 0;
 	if (recvDataLen > 0) {
 		if (debug) {
 			cout << " IP packet received" << endl;
 		}
 		if (recvDataLen < IP_HEADER_SIZE || recvDataLen > IP_MAX_FRAME_SIZE) {
-			if (debug) { 
-				cout << " IP packet size" << endl; 
+			if (debug) {
+				cout << " IP packet size" << endl;
 			}
 		}
 		// Validate packet
@@ -350,16 +354,16 @@ int L3::recvFromL3(byte *recvData, size_t recvDataLen) {
 }
 
 /*
-	Implemented for you
+Implemented for you
 */
-void L3::setLowerInterface(L2* lowerInterface){ this->lowerInterface = lowerInterface; }
+void L3::setLowerInterface(L2* lowerInterface) { this->lowerInterface = lowerInterface; }
 
 /*
-	Implemented for you
+Implemented for you
 */
-void L3::setUpperInterface(L4* upperInterface){ this->upperInterface = upperInterface; }
+void L3::setUpperInterface(L4* upperInterface) { this->upperInterface = upperInterface; }
 
 /*
-	Implemented for you
+Implemented for you
 */
-std::string L3::getLowestInterface(){ return lowerInterface->getLowestInterface(); }
+std::string L3::getLowestInterface() { return lowerInterface->getLowestInterface(); }
